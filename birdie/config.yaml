@@ -1,0 +1,32 @@
+name: Birdie
+version: "0.1.0"
+slug: birdie
+description: Birdie LLM agent (Mistral) wired to the Home Assistant MCP Server
+url: https://github.com/gkvas/birdie-haos-addon/tree/main/birdie
+arch:
+  - amd64
+  - aarch64
+init: false
+startup: application
+boot: auto
+# Served in the HA sidebar; ttyd listens on 7681 inside the container.
+ingress: true
+ingress_port: 7681
+panel_icon: mdi:robot-happy
+panel_title: Birdie
+# Persist ~/.birdie (sessions, long-term memory) across restarts/updates.
+map:
+  - addon_config:rw
+options:
+  model: mistral-large-latest
+  ha_url: http://homeassistant:8123
+  mistral_api_key: ""
+  ha_token: ""
+  extra_skills: []
+schema:
+  model: str
+  ha_url: str
+  mistral_api_key: password
+  ha_token: password
+  extra_skills:
+    - str

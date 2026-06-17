@@ -1,0 +1,16 @@
+---
+name: home_assistant
+version: 1.0.0
+description: Read and control Home Assistant via the MCP Server integration (Assist tools)
+enabled_by_default: false
+mcp_server:
+  transport: sse
+  url: "${HA_URL}/mcp_server/sse"
+  headers:
+    Authorization: "Bearer ${HA_TOKEN}"
+---
+
+This skill exposes the Home Assistant Assist tools (HassTurnOn, HassTurnOff,
+HassClimateSetTemperature, GetLiveContext, ...) over MCP. Only entities that are
+exposed to Assist in Home Assistant are visible. The tool list is discovered at
+runtime from the MCP server, so no `## Tools` section is needed here.
