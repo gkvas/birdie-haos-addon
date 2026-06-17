@@ -4,13 +4,14 @@ set -euo pipefail
 
 OPTIONS=/data/options.json
 
+VENDOR=$(bashio::config 'vendor')
 MODEL=$(bashio::config 'model')
+API_KEY=$(bashio::config 'api_key')
 HA_URL=$(bashio::config 'ha_url')
-MISTRAL_API_KEY=$(bashio::config 'mistral_api_key')
 HA_TOKEN=$(bashio::config 'ha_token')
 
-if bashio::var.is_empty "${MISTRAL_API_KEY}"; then
-    bashio::exit.nok "Set 'mistral_api_key' in the add-on configuration."
+if bashio::var.is_empty "${API_KEY}"; then
+    bashio::exit.nok "Set 'api_key' for the selected vendor (${VENDOR}) in the add-on configuration."
 fi
 if bashio::var.is_empty "${HA_TOKEN}"; then
     bashio::exit.nok "Set 'ha_token' (a Home Assistant long-lived access token) in the add-on configuration."
@@ -31,12 +32,13 @@ sed -e "s|\${HA_URL}|${HA_URL}|g" \
 SKILLS_JSON=$(jq -c '(["home_assistant"] + (.extra_skills // []))' "${OPTIONS}")
 export LLM_PROVIDER_CONFIG
 LLM_PROVIDER_CONFIG=$(jq -nc \
+    --arg vendor "${VENDOR}" \
     --arg model "${MODEL}" \
-    --arg key "${MISTRAL_API_KEY}" \
+    --arg key "${API_KEY}" \
     --argjson skills "${SKILLS_JSON}" \
-    '{vendor:"mistral", model:$model, api_key:$key, skills_enabled:$skills}')
+    '{vendor:$vendor, model:$model, api_key:$key, skills_enabled:$skills}')
 
-bashio::log.info "Starting Birdie (model=${MODEL}, HA=${HA_URL}, skills=${SKILLS_JSON})"
+bashio::log.info "Starting Birdie (vendor=${VENDOR}, model=${MODEL}, HA=${HA_URL}, skills=${SKILLS_JSON})"
 
 # Serve the birdie TUI over a web terminal; HA Ingress proxies port 7681.
 exec ttyd -W -p 7681 -t 'titleFixed=Birdie' -t 'fontSize=14' birdie

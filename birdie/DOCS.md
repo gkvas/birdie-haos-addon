@@ -1,15 +1,17 @@
 # Birdie
 
-Birdie is a LangGraph agent that uses **Mistral** as its brain and the **Home
-Assistant MCP Server** as its tools. Talk to it from the terminal in the sidebar.
+Birdie is a LangGraph agent that uses an LLM provider of your choice as its brain
+and the **Home Assistant MCP Server** as its tools. Talk to it from the terminal in
+the sidebar.
 
 ## Configuration
 
 | Option | Description |
 |---|---|
-| `mistral_api_key` | Your Mistral API key (required). |
+| `vendor` | LLM provider: `mistral` (default), `anthropic`, or `openai`. |
+| `model` | Model name for the vendor. Default `mistral-large-latest` (e.g. `claude-sonnet-4-6`, `gpt-4o`). |
+| `api_key` | API key for the selected vendor (required). |
 | `ha_token` | A Home Assistant long-lived access token (required). Profile → Security → Long-lived access tokens. |
-| `model` | Mistral model. Default `mistral-large-latest`. |
 | `ha_url` | Internal URL to HA core. Default `http://homeassistant:8123` — leave as-is. |
 | `extra_skills` | Extra Birdie skills to enable, e.g. `["Shell", "DuckDuckGo"]`. Off by default. |
 

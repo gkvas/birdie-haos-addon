@@ -1,15 +1,16 @@
 # Birdie Home Assistant Add-on
 
 Runs [Birdie](https://github.com/gkvas/birdie) — a LangGraph agent — as a Home
-Assistant OS add-on, powered by **Mistral** and wired to the **Home Assistant MCP
-Server** so it can see and control your home. You interact with it through its
-terminal UI, served in the HA sidebar via Ingress.
+Assistant OS add-on, powered by your choice of LLM provider (**Mistral**,
+**Anthropic**, or **OpenAI**) and wired to the **Home Assistant MCP Server** so it
+can see and control your home. You interact with it through its terminal UI, served
+in the HA sidebar via Ingress.
 
 ```
 Browser (HA sidebar / Ingress)
    │ ttyd web terminal
    ▼
-Birdie add-on ── Mistral (mistral-large-latest)
+Birdie add-on ── LLM (vendor/model from config)
    └── home_assistant skill (MCP / SSE) ──► HA core /mcp_server/sse
 ```
 
@@ -19,10 +20,12 @@ Birdie add-on ── Mistral (mistral-large-latest)
    add `https://github.com/gkvas/birdie-haos-addon`.
 2. Install **Birdie** from the store.
 3. Open the add-on **Configuration** tab and set:
-   - `mistral_api_key` — your Mistral API key
+   - `vendor` — LLM provider: `mistral` (default), `anthropic`, or `openai`
+   - `model` — model name for that vendor (default `mistral-large-latest`;
+     e.g. `claude-sonnet-4-6` for anthropic, `gpt-4o` for openai)
+   - `api_key` — API key for the selected vendor
    - `ha_token` — a Home Assistant **long-lived access token**
      (Profile → Security → Long-lived access tokens → Create token)
-   - `model` — defaults to `mistral-large-latest`
    - `ha_url` — defaults to `http://homeassistant:8123` (internal; leave as-is)
    - `extra_skills` — optional, e.g. `Shell`, `DuckDuckGo` (off by default; see
      the security note below)
@@ -42,7 +45,8 @@ have entities exposed to Assist:
 
 - `run.sh` reads the add-on options, renders the `home_assistant` MCP skill from
   `rootfs/skill/SKILL.MD.tmpl` into `~/.birdie/skills/`, and sets
-  `LLM_PROVIDER_CONFIG` so Birdie starts with Mistral and the HA skill enabled.
+  `LLM_PROVIDER_CONFIG` (vendor/model/api_key) so Birdie starts with the chosen
+  provider and the HA skill enabled.
 - The skill declares an `mcp_server` block (`transport: sse`,
   `url: <ha_url>/mcp_server/sse`, Bearer `ha_token`); Birdie discovers the HA tools
   (`HassTurnOn`, `HassClimateSetTemperature`, `GetLiveContext`, …) at runtime.

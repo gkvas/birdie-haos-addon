@@ -1,7 +1,7 @@
 name: Birdie
-version: "0.1.0"
+version: "0.2.0"
 slug: birdie
-description: Birdie LLM agent (Mistral) wired to the Home Assistant MCP Server
+description: Birdie LLM agent wired to the Home Assistant MCP Server
 url: https://github.com/gkvas/birdie-haos-addon/tree/main/birdie
 arch:
   - amd64
@@ -18,15 +18,17 @@ panel_title: Birdie
 map:
   - addon_config:rw
 options:
+  vendor: mistral
   model: mistral-large-latest
+  api_key: ""
   ha_url: http://homeassistant:8123
-  mistral_api_key: ""
   ha_token: ""
   extra_skills: []
 schema:
+  vendor: list(anthropic|openai|mistral)
   model: str
+  api_key: password
   ha_url: str
-  mistral_api_key: password
   ha_token: password
   extra_skills:
     - str
