@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Birdie Conversation",
+        "description": "Connect to the Birdie add-on's conversation API. Use the Home Assistant host address and the port/secret configured in the add-on.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "api_secret": "API secret"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the Birdie conversation API at that host/port. Check the add-on is running with the conversation API enabled."
+    },
+    "abort": {
+      "already_configured": "This Birdie endpoint is already configured."
+    }
+  }
+}

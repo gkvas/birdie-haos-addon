@@ -1,5 +1,5 @@
 name: Birdie
-version: "0.2.0"
+version: "0.3.0"
 slug: birdie
 description: Birdie LLM agent wired to the Home Assistant MCP Server
 url: https://github.com/gkvas/birdie-haos-addon/tree/main/birdie
@@ -17,6 +17,12 @@ panel_title: Birdie
 # Persist ~/.birdie (sessions, long-term memory) across restarts/updates.
 map:
   - addon_config:rw
+# Conversation-agent HTTP bridge, published on the host network so the
+# birdie_conversation custom integration (running in HA core) can reach it.
+ports:
+  "7682/tcp": 7682
+ports_description:
+  "7682/tcp": Birdie conversation API (used by the birdie_conversation integration)
 options:
   vendor: mistral
   model: mistral-large-latest
@@ -24,6 +30,8 @@ options:
   ha_url: http://homeassistant:8123
   ha_token: ""
   extra_skills: []
+  enable_conversation_api: true
+  api_secret: ""
 schema:
   vendor: list(anthropic|openai|mistral)
   model: str
@@ -32,3 +40,5 @@ schema:
   ha_token: password
   extra_skills:
     - str
+  enable_conversation_api: bool
+  api_secret: password

@@ -40,5 +40,18 @@ LLM_PROVIDER_CONFIG=$(jq -nc \
 
 bashio::log.info "Starting Birdie (vendor=${VENDOR}, model=${MODEL}, HA=${HA_URL}, skills=${SKILLS_JSON})"
 
+# Optional: conversation-agent HTTP bridge for the birdie_conversation integration.
+if bashio::config.true 'enable_conversation_api'; then
+    API_SECRET=$(bashio::config 'api_secret')
+    if bashio::var.is_empty "${API_SECRET}"; then
+        bashio::log.warning "enable_conversation_api is on but 'api_secret' is empty - conversation API disabled."
+    else
+        export BIRDIE_API_SECRET="${API_SECRET}"
+        export BIRDIE_API_PORT=7682
+        bashio::log.info "Starting Birdie conversation API on :7682"
+        python3 /opt/birdie_api/server.py &
+    fi
+fi
+
 # Serve the birdie TUI over a web terminal; HA Ingress proxies port 7681.
 exec ttyd -W -p 7681 -t 'titleFixed=Birdie' -t 'fontSize=14' birdie

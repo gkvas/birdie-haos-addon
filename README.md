@@ -29,6 +29,8 @@ Birdie add-on ── LLM (vendor/model from config)
    - `ha_url` — defaults to `http://homeassistant:8123` (internal; leave as-is)
    - `extra_skills` — optional, e.g. `Shell`, `DuckDuckGo` (off by default; see
      the security note below)
+   - `enable_conversation_api` / `api_secret` — optional; only needed for the
+     **conversation agent** (Assist) integration below
 4. **Start** the add-on, then open **Birdie** from the sidebar.
 
 ## Home Assistant prerequisites (one-time)
@@ -52,6 +54,39 @@ have entities exposed to Assist:
   (`HassTurnOn`, `HassClimateSetTemperature`, `GetLiveContext`, …) at runtime.
 - State (`~/.birdie/sessions`, long-term memory) is stored under `/data`, so it
   survives restarts and updates.
+
+## Conversation agent (Assist) — optional
+
+Talk to Birdie through Home Assistant **Assist** (chat or voice) instead of only the
+terminal. Birdie stays a full agent (it uses HA MCP and its own memory); Assist is just
+a thin transport. This has two parts: an HTTP bridge in the add-on, and a small custom
+integration in HA core.
+
+```
+HA Assist ──► birdie_conversation integration ──HTTP──► add-on bridge (:7682) ──► Birdie
+```
+
+1. **Enable the bridge in the add-on**: Configuration tab → set
+   `enable_conversation_api: true` and a strong `api_secret` → **Save** → **Restart**.
+   The bridge listens on host port **7682** (see the add-on `ports` mapping).
+2. **Install the custom integration**: copy `custom_components/birdie_conversation/`
+   from this repo into your HA config folder (`/config/custom_components/`), then
+   **restart Home Assistant**. (You can use the Samba/File editor/SSH add-on to copy it.)
+3. **Add the integration**: Settings → Devices & Services → **Add Integration** →
+   "Birdie Conversation" → enter:
+   - **Host** — the address of your HA host on your LAN (e.g. `homeassistant.local`
+     or the box's IP). This is where the add-on publishes port 7682.
+   - **Port** — `7682`
+   - **API secret** — the same `api_secret` you set in the add-on
+   The config flow calls `/health` to verify connectivity before saving.
+4. **Select Birdie as the agent**: Settings → **Voice assistants** → your assistant →
+   **Conversation agent** → **Birdie**.
+
+Now "turn off the office light" in Assist is handled by Birdie, which acts via HA MCP
+and replies. Multi-turn context is preserved per conversation.
+
+> The `api_secret` authenticates the integration to the bridge; the port is on your LAN,
+> so use a non-trivial secret. It is never stored in this repo.
 
 ## Security
 

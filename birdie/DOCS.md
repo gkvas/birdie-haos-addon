@@ -14,6 +14,15 @@ the sidebar.
 | `ha_token` | A Home Assistant long-lived access token (required). Profile → Security → Long-lived access tokens. |
 | `ha_url` | Internal URL to HA core. Default `http://homeassistant:8123` — leave as-is. |
 | `extra_skills` | Extra Birdie skills to enable, e.g. `["Shell", "DuckDuckGo"]`. Off by default. |
+| `enable_conversation_api` | Start the HTTP bridge (port 7682) used by the Birdie Conversation integration so you can talk to Birdie via Assist. Default on. |
+| `api_secret` | Shared secret required by the conversation bridge. Leave empty to disable the bridge even if `enable_conversation_api` is on. |
+
+## Conversation agent (Assist)
+
+To talk to Birdie through Home Assistant Assist (chat/voice), set `api_secret`, then
+install the `birdie_conversation` custom integration and point it at this add-on's host
+port 7682. See the repository README's "Conversation agent (Assist)" section for the
+full steps.
 
 ## Before first use
 
