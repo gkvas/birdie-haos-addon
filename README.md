@@ -69,9 +69,14 @@ HA Assist ──► birdie_conversation integration ──HTTP──► add-on b
 1. **Enable the bridge in the add-on**: Configuration tab → set
    `enable_conversation_api: true` and a strong `api_secret` → **Save** → **Restart**.
    The bridge listens on host port **7682** (see the add-on `ports` mapping).
-2. **Install the custom integration**: copy `custom_components/birdie_conversation/`
-   from this repo into your HA config folder (`/config/custom_components/`), then
-   **restart Home Assistant**. (You can use the Samba/File editor/SSH add-on to copy it.)
+2. **Install the custom integration** — two options:
+   - **HACS (recommended):** HACS → ⋮ → **Custom repositories** → add
+     `https://github.com/gkvas/birdie-haos-addon` with category **Integration** →
+     install **Birdie Conversation** → **restart Home Assistant**. (Requires
+     [HACS](https://hacs.xyz) to be installed.)
+   - **Manual:** copy `custom_components/birdie_conversation/` from this repo into your
+     HA config folder (`/config/custom_components/`), then **restart Home Assistant**
+     (use the Samba / File editor / SSH add-on to copy it).
 3. **Add the integration**: Settings → Devices & Services → **Add Integration** →
    "Birdie Conversation" → enter:
    - **Host** — the address of your HA host on your LAN (e.g. `homeassistant.local`
