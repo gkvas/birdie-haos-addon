@@ -10,7 +10,12 @@ ENV LANG=C.UTF-8 \
 # install them as a virtual package and drop them afterwards to keep the image lean.
 RUN apk add --no-cache python3 py3-pip ttyd jq \
     && apk add --no-cache --virtual .build-deps build-base python3-dev libffi-dev \
-    && pip3 install --no-cache-dir "birdie-agent==0.5.3" aiohttp \
+    && for i in 1 2 3 4 5 6; do \
+         pip3 install --no-cache-dir "birdie-agent==0.5.3" aiohttp && break; \
+         echo "pip install attempt $i failed (PyPI may still be propagating the pin); retrying in 30s..."; \
+         sleep 30; \
+       done \
+    && python3 -c "import birdie, aiohttp" \
     && apk del .build-deps
 
 COPY rootfs /
