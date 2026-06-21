@@ -1,0 +1,90 @@
+name: Build & publish image
+
+# Builds the add-on image for all supported architectures and pushes prebuilt
+# images to GHCR so Home Assistant pulls them instead of building locally.
+# The image tag is taken from birdie/config.yaml `version`, so Supervisor can pull
+# ghcr.io/gkvas/birdie:<version>.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  ARCHITECTURES: '["amd64", "aarch64"]'
+  IMAGE_NAME: birdie-haos-addon
+  BASE_VERSION: "3.20" # Home Assistant Alpine base image tag (matches build.yaml)
+
+permissions:
+  contents: read
+
+jobs:
+  init:
+    name: Initialize build
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read add-on version
+        id: version
+        run: |
+          v=$(grep -E '^version:' birdie/config.yaml | sed -E 's/version:[[:space:]]*"?([^"]+)"?/\1/')
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "Add-on version: $v"
+
+      - name: Get build matrix
+        id: matrix
+        uses: home-assistant/builder/actions/prepare-multi-arch-matrix@2026.06.0
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          image-name: ${{ env.IMAGE_NAME }}
+
+  build:
+    name: Build ${{ matrix.arch }} image
+    needs: init
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write # push images to GHCR
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.init.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build & push image
+        uses: home-assistant/builder/actions/build-image@2026.06.0
+        with:
+          arch: ${{ matrix.arch }}
+          image: ${{ matrix.image }}
+          image-tags: |
+            ${{ needs.init.outputs.version }}
+            latest
+          context: ./birdie
+          build-args: |
+            BUILD_FROM=ghcr.io/home-assistant/${{ matrix.arch }}-base:${{ env.BASE_VERSION }}
+          cosign: "false"
+          push: "true"
+          version: ${{ needs.init.outputs.version }}
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}
+
+  manifest:
+    name: Publish multi-arch manifest
+    needs: [init, build]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # push the manifest to GHCR
+    steps:
+      - name: Publish multi-arch manifest
+        uses: home-assistant/builder/actions/publish-multi-arch-manifest@2026.06.0
+        with:
+          architectures: ${{ env.ARCHITECTURES }}
+          image-name: ${{ env.IMAGE_NAME }}
+          image-tags: |
+            ${{ needs.init.outputs.version }}
+            latest
+          cosign: "false"
+          container-registry-password: ${{ secrets.GITHUB_TOKEN }}

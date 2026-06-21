@@ -1,8 +1,11 @@
 name: Birdie
-version: "0.4.0"
+version: "0.4.1"
 slug: birdie
 description: Birdie LLM agent wired to the Home Assistant MCP Server
 url: https://github.com/gkvas/birdie-haos-addon/tree/main/birdie
+# Prebuilt multi-arch image published to GHCR by .github/workflows/build.yaml.
+# With this set, Supervisor pulls the image (fast) instead of building locally.
+image: "ghcr.io/gkvas/birdie-haos-addon"
 arch:
   - amd64
   - aarch64
